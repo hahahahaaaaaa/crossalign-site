@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrossAlign — 让每一分广告预算精准命中真实买家</title>
+<style>
+  :root {
+    --bg: #06060f;
+    --bg2: #0d0d1f;
+    --bg3: #111128;
+    --accent1: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --border: rgba(124,58,237,0.25);
+    --glow1: 0 0 40px rgba(124,58,237,0.35);
+    --glow2: 0 0 40px rgba(6,182,212,0.35);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 60px;
+    background: rgba(6,6,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-size: 22px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    padding: 10px 24px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .2s, transform .2s;
+    text-decoration: none;
+  }
+  .nav-cta:hover { opacity: .85; transform: translateY(-1px); }
+
+  /* ── SECTIONS ── */
+  section { position: relative; z-index: 1; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    overflow: hidden;
+  }
+
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    pointer-events: none;
+  }
+  .orb-purple {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,58,237,0.3) 0%, transparent 70%);
+    top: -100px; left: -100px;
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+  .orb-cyan {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(6,182,212,0.25) 0%, transparent 70%);
+    bottom: -80px; right: -80px;
+    animation: drift 10s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes drift {
+    from { transform: translate(0,0) scale(1); }
+    to   { transform: translate(40px,30px) scale(1.05); }
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.4);
+    border-radius: 100px;
+    font-size: 13px;
+    color: #a78bfa;
+    margin-bottom: 28px;
+    letter-spacing: 0.3px;
+  }
+  .badge-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent1);
+    box-shadow: 0 0 8px var(--accent1);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .6; transform: scale(1.4); }
+  }
+
+  .hero-title {
+    font-size: clamp(42px, 7vw, 88px);
+    font-weight: 900;
+    line-height: 1.08;
+    letter-spacing: -2px;
+    margin-bottom: 24px;
+  }
+  .hero-title .line1 { display: block; color: var(--text); }
+  .hero-title .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--accent1) 0%, var(--accent2) 60%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-sub {
+    max-width: 680px;
+    font-size: 20px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .hero-btns {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 80px;
+  }
+  .btn-primary {
+    padding: 16px 40px;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .25s;
+    box-shadow: 0 4px 24px rgba(124,58,237,0.4);
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(124,58,237,0.55);
+  }
+  .btn-secondary {
+    padding: 16px 40px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .25s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-secondary:hover {
+    border-color: rgba(124,58,237,0.6);
+    background: rgba(124,58,237,0.08);
+    transform: translateY(-2px);
+  }
+
+  /* HERO STATS STRIP */
+  .hero-stats {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(13,13,31,0.8);
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    flex-wrap: wrap;
+  }
+  .hero-stat {
+    padding: 24px 20px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    flex: 1;
+    min-width: 160px;
+  }
+  .hero-stat:last-child { border-right: none; }
+  .stat-val {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: block;
+    line-height: 1;
+    margin-bottom: 6px;
+    white-space: nowrap;
+  }
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .section-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .section-sub {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+  /* ── PROBLEM SECTION ── */
+  #problem {
+    padding: 100px 0;
+    background: linear-gradient(180deg, transparent, var(--bg2) 30%, var(--bg2) 70%, transparent);
+  }
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+  .pain-card {
+    padding: 28px;
+    background: var(--bg3);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .3s, border-color .3s;
+  }
+  .pain-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(239,68,68,0.5);
+  }
+  .pain-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red), transparent);
+  }
+  .pain-icon { font-size: 32px; margin-bottom: 12px; }
+  .pain-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .pain-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+  .pain-num {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--red);
+    display: block;
+    margin-top: 12px;
+  }
+
+  /* ── PIPELINE SECTION ── */
+  #pipeline { padding: 100px 0; }
+
+  .pipeline-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .pipeline-step {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 32px;
+    align-items: start;
+    position: relative;
+  }
+  .pipeline-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 39px;
+    top: 72px;
+    width: 2px;
+    height: calc(100% - 40px);
+    background: linear-gradient(180deg, var(--accent1), var(--accent2));
+    opacity: 0.4;
+  }
+
+  .step-num-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding-top: 4px;
+  }
+  .step-num {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .step-num.s1 { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
+  .step-num.s2 { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+  .step-num.s3 { background: linear-gradient(135deg, #10b981, #34d399); }
+  .step-num.s4 { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+  .step-num.s5 { background: linear-gradient(135deg, #ef4444, #f97316); }
+
+  .step-body {
+    padding: 0 0 52px;
+  }
+  .step-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .step-desc {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 680px;
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+  .step-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tag {
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid;
+  }
+  .tag-purple { color: #a78bfa; border-color: rgba(167,139,250,0.35); background: rgba(167,139,250,0.08); }
+  .tag-cyan   { color: #67e8f9; border-color: rgba(103,232,249,0.35); background: rgba(103,232,249,0.08); }
+  .tag-green  { color: #6ee7b7; border-color: rgba(110,231,183,0.35); background: rgba(110,231,183,0.08); }
+  .tag-amber  { color: #fcd34d; border-color: rgba(252,211,77,0.35);  background: rgba(252,211,77,0.08);  }
+  .tag-red    { color: #fca5a5; border-color: rgba(252,165,165,0.35); background: rgba(252,165,165,0.08); }
+
+  /* ── MATCH ENGINE ── */
+  #engine { padding: 100px 0; background: var(--bg2); }
+
+  .engine-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  .engine-card {
+    padding: 36px 32px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    transition: transform .3s, box-shadow .3s;
+  }
+  .engine-card:hover {
+    transform: translateY(-6px);
+  }
+  .engine-card.tier1 {
+    background: linear-gradient(145deg, rgba(124,58,237,0.12), var(--bg3));
+    border-color: rgba(124,58,237,0.4);
+  }
+  .engine-card.tier1:hover { box-shadow: var(--glow1); }
+  .engine-card.tier2 {
+    background: linear-gradient(145deg, rgba(6,182,212,0.12), var(--bg3));
+    border-color: rgba(6,182,212,0.4);
+  }
+  .engine-card.tier2:hover { box-shadow: var(--glow2); }
+  .engine-card.tier3 {
+    background: linear-gradient(145deg, rgba(245,158,11,0.1), var(--bg3));
+    border-color: rgba(245,158,11,0.35);
+  }
+  .engine-card.tier3:hover { box-shadow: 0 0 40px rgba(245,158,11,0.3); }
+
+  .engine-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .eb-purple { background: rgba(124,58,237,0.2); color: #a78bfa; }
+  .eb-cyan   { background: rgba(6,182,212,0.2);  color: #67e8f9; }
+  .eb-amber  { background: rgba(245,158,11,0.2); color: #fcd34d; }
+
+  .engine-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+  .engine-sub   { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.65; }
+
+  .confidence-bar {
+    margin-top: 20px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 100px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .confidence-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 1.5s cubic-bezier(.4,0,.2,1);
+  }
+  .cf-purple { background: linear-gradient(90deg, var(--accent1), #a78bfa); }
+  .cf-cyan   { background: linear-gradient(90deg, var(--accent2), #67e8f9); }
+  .cf-amber  { background: linear-gradient(90deg, var(--accent3), #fbbf24); }
+  .confidence-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .engine-feature-list {
+    list-style: none;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .engine-feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .engine-feature-list li::before {
+    content: '▸';
+    color: var(--accent1);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .tier2 .engine-feature-list li::before { color: var(--accent2); }
+  .tier3 .engine-feature-list li::before { color: var(--accent3); }
+
+  /* ── STATS ── */
+  #stats { padding: 100px 0; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+  }
+  .stat-card {
+    padding: 36px 28px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform .3s, border-color .3s;
+  }
+  .stat-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(124,58,237,0.5);
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(124,58,237,0.08), transparent 60%);
+    pointer-events: none;
+  }
+  .sc-icon { font-size: 36px; margin-bottom: 12px; }
+  .sc-val {
+    font-size: 52px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 8px;
+    letter-spacing: -2px;
+  }
+  .sc-label { font-size: 14px; color: var(--muted); line-height: 1.5; }
+
+  /* ── VS SECTION ── */
+  #versus { padding: 100px 0; }
+
+  .vs-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .vs-table th {
+    padding: 20px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-align: left;
+  }
+  .vs-table th:first-child { background: var(--bg3); color: var(--muted); }
+  .vs-table th.col-jellop { background: rgba(100,116,139,0.15); color: var(--muted); text-align: center; }
+  .vs-table th.col-cross  {
+    background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(6,182,212,0.15));
+    color: #a78bfa;
+    text-align: center;
+  }
+  .vs-table td {
+    padding: 16px 24px;
+    font-size: 14px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .vs-table td:first-child { color: var(--muted); background: var(--bg3); font-weight: 500; }
+  .vs-table td.col-jellop { text-align: center; background: rgba(100,116,139,0.06); color: var(--muted); }
+  .vs-table td.col-cross  {
+    text-align: center;
+    background: rgba(124,58,237,0.06);
+    color: var(--text);
+    font-weight: 600;
+  }
+  .win { color: var(--green) !important; }
+  .check { color: var(--green); }
+  .cross { color: var(--red); }
+
+  /* ── MARKET ── */
+  #market { padding: 100px 0; background: var(--bg2); }
+
+  .market-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+  @media (max-width: 768px) { .market-grid { grid-template-columns: 1fr; } }
+
+  .market-numbers {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .market-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: transform .3s;
+  }
+  .market-item:hover { transform: translateX(6px); }
+  .market-val {
+    font-size: 30px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 110px;
+  }
+  .market-desc { font-size: 14px; color: var(--muted); line-height: 1.55; }
+
+  .market-visual {
+    padding: 40px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .mv-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .bar-row { display: flex; flex-direction: column; gap: 6px; }
+  .bar-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .bar-track {
+    height: 10px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 2s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── CTA ── */
+  #cta {
+    padding: 120px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  #cta::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .cta-title {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+  .cta-sub { font-size: 20px; color: var(--muted); margin-bottom: 40px; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 40px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+  }
+  footer span {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0 auto;
+    max-width: 800px;
+  }
+
+  /* ── FEATURE HIGHLIGHT ROW ── */
+  .highlight-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: rgba(124,58,237,0.08);
+    border: 1px solid rgba(124,58,237,0.2);
+    border-radius: 10px;
+    font-size: 14px;
+    color: #c4b5fd;
+  }
+  .hr-icon { font-size: 20px; flex-shrink: 0; }
+
+  /* ── SCROLL ANIMATE ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── GLOW TEXT ── */
+  .glow-purple {
+    color: #a78bfa;
+    text-shadow: 0 0 20px rgba(167,139,250,0.5);
+  }
+  .glow-cyan {
+    color: #67e8f9;
+    text-shadow: 0 0 20px rgba(103,232,249,0.5);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .container { padding: 0 20px; }
+    .hero-stats { flex-direction: column; }
+    .hero-stat { border-right: none; border-bottom: 1px solid var(--border); }
+    .hero-stat:last-child { border-bottom: none; }
+    .pipeline-step { grid-template-columns: 56px 1fr; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">CrossAlign</div>
+  <div class="nav-links">
+    <a href="#pipeline">工作原理</a>
+    <a href="#engine">匹配引擎</a>
+    <a href="#stats">核心数据</a>
+    <a href="#versus">竞争优势</a>
+  </div>
+  <a href="#cta" class="nav-cta">预约演示</a>
+</nav>
+
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-orb orb-purple"></div>
+  <div class="hero-orb orb-cyan"></div>
+
+  <div class="badge">
+    <span class="badge-dot"></span>
+    全球首个 KS × FB 跨平台智能对齐平台
+  </div>
+
+  <h1 class="hero-title">
+    <span class="line1">让众筹支持者</span>
+    <span class="line2">精准出现在你的广告受众里</span>
+  </h1>
+
+  <p class="hero-sub">
+    CrossAlign 通过 AI 驱动的跨平台用户身份识别技术，自动将 Kickstarter 真实买家与 Facebook 账户完成对齐匹配，帮助中国出海品牌以<strong style="color:var(--text)">最低获客成本</strong>命中最高价值受众。
+  </p>
+
+  <div class="hero-btns">
+    <a href="#pipeline" class="btn-primary">了解工作原理 →</a>
+    <a href="#stats" class="btn-secondary">查看核心数据</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="stat-val" data-count="100" data-suffix="万+">0</span>
+      <span class="stat-label">KS 用户匹配样本</span>
+    </div>
+    <div class="hero-stat">
+      <span class="stat-val" data-count="10" data-suffix="万+">0</span>
+      <span class="stat-label">Facebook 线索用户</span>
+    </div>
+    <div class="hero-stat">
+      <span class="stat-val" data-count="10" data-suffix="万">0</span>
+      <span class="stat-label">已处理画像样本</span>
+    </div>
+    <div class="hero-stat">
+      <span class="stat-val" data-count="60" data-suffix="%">0</span>
+      <span class="stat-label">精准投放降低获客成本</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-tag">行业痛点</span>
+      <h2 class="section-title">众筹广告投放<br>为什么这么难？</h2>
+      <p class="section-sub">中国品牌出海众筹，70–80% 流量靠 Facebook 付费广告驱动，但精准度极低</p>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card fade-in">
+        <div class="pain-icon">🎯</div>
+        <div class="pain-title">受众定位完全靠猜</div>
+        <div class="pain-desc">中国团队不了解海外消费者习惯，广告投放依赖兴趣标签，实际转化率与预期严重偏差</div>
+        <span class="pain-num">广告预算白白浪费超 60%</span>
+      </div>
+      <div class="pain-card fade-in">
+        <div class="pain-icon">❄️</div>
+        <div class="pain-title">冷启动无数据</div>
+        <div class="pain-desc">传统方案依赖 Pixel 历史数据建模——新项目 0 转化数据，Lookalike 受众无从建立</div>
+        <span class="pain-num">前期完全失效</span>
+      </div>
+      <div class="pain-card fade-in">
+        <div class="pain-icon">💸</div>
+        <div class="pain-title">营销预算占比极高</div>
+        <div class="pain-desc">典型众筹项目 20–30% 的目标金额用于营销，Facebook 广告占其中 15–20%，投产比极为关键</div>
+        <span class="pain-num">$10万项目 ≈ $2万广告费</span>
+      </div>
+      <div class="pain-card fade-in">
+        <div class="pain-icon">🔍</div>
+        <div class="pain-title">真实买家无法定位</div>
+        <div class="pain-desc">众筹平台支持者数据封闭，无法直接找到这群"已验证愿意为创新产品付钱"的真实群体</div>
+        <span class="pain-num">最精准受众被浪费</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-tag">工作原理</span>
+      <h2 class="section-title">5 步全自动 AI 管道<br>从采集到投放</h2>
+      <p class="section-sub">完全自动化的端到端数据管道，无需手动操作</p>
+    </div>
+
+    <div class="pipeline-wrap">
+
+      <div class="pipeline-step fade-in">
+        <div class="step-num-wrap">
+          <div class="step-num s1">01</div>
+        </div>
+        <div class="step-body">
+          <h3 class="step-title">🕷️ Kickstarter 用户智能采集</h3>
+          <p class="step-desc">
+            AI 爬虫自动搜索同品类 KS 项目，提取所有真实支持者的公开档案：用户名、个人简介、投资记录、社交链接。这些人已经用真金白银证明了自己是你的目标用户。
+          </p>
+          <div class="step-tags">
+            <span class="tag tag-purple">Playwright + CDP</span>
+            <span class="tag tag-purple">Cloudflare 绕过</span>
+            <span class="tag tag-purple">AdsPower 代理</span>
+            <span class="tag tag-cyan">自动限速防封</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pipeline-step fade-in">
+        <div class="step-num-wrap">
+          <div class="step-num s2">02</div>
+        </div>
+        <div class="step-body">
+          <h3 class="step-title">🧹 数据清洗与特征提取</h3>
+          <p class="step-desc">
+            跨项目去重、正则提取社交链接、质量评分过滤机器人账号，并生成 8 维特征向量——为后续 ML 匹配构建精确的数学表示。
+          </p>
+          <div class="step-tags">
+            <span class="tag tag-cyan">8 维特征向量</span>
+            <span class="tag tag-cyan">跨项目去重</span>
+            <span class="tag tag-cyan">机器人过滤</span>
+            <span class="tag tag-green">质量评分</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pipeline-step fade-in">
+        <div class="step-num-wrap">
+          <div class="step-num s3">03</div>
+        </div>
+        <div class="step-body">
+          <h3 class="step-title">🔗 跨平台用户身份对齐（核心）</h3>
+          <p class="step-desc">
+            三层匹配引擎并行运行：直链提取（0.97 置信度）→ ML 特征向量相似度匹配（0.70–0.90）→ GCN 图神经网络社交关系挖掘（规划中）。同一个人在 KS 和 FB 上的账号被精准关联。
+          </p>
+          <div class="step-tags">
+            <span class="tag tag-green">直链匹配 0.97</span>
+            <span class="tag tag-green">ML 余弦相似度</span>
+            <span class="tag tag-green">GCN 图神经网络</span>
+            <span class="tag tag-amber">FAISS 向量索引</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pipeline-step fade-in">
+        <div class="step-num-wrap">
+          <div class="step-num s4">04</div>
+        </div>
+        <div class="step-body">
+          <h3 class="step-title">👥 Facebook 自定义受众构建</h3>
+          <p class="step-desc">
+            将匹配置信度 ≥ 0.70 的用户导出为 SHA-256 哈希加密的受众文件，自动推送至 Facebook Marketing API，生成精准自定义受众。再基于这批种子用户扩展 1% Lookalike 相似受众，覆盖更广的高潜力人群。
+          </p>
+          <div class="step-tags">
+            <span class="tag tag-amber">SHA-256 隐私加密</span>
+            <span class="tag tag-amber">Facebook Marketing API</span>
+            <span class="tag tag-amber">1% Lookalike 扩展</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pipeline-step fade-in">
+        <div class="step-num-wrap">
+          <div class="step-num s5">05</div>
+        </div>
+        <div class="step-body">
+          <h3 class="step-title">📊 广告投放 + ROI 实时归因</h3>
+          <p class="step-desc">
+            自动创建 Campaign / AdSet / Ad 层级，实时回收 Facebook 广告洞察数据。通过 Facebook Pixel + ClickHouse 时序数据库，精确计算每分钱广告投入带来的众筹承诺金额，ROAS 实时可查。
+          </p>
+          <div class="step-tags">
+            <span class="tag tag-red">Facebook Ads API</span>
+            <span class="tag tag-red">ClickHouse 时序</span>
+            <span class="tag tag-red">ROAS 实时计算</span>
+            <span class="tag tag-red">Pixel 转化追踪</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<div class="divider"></div>
+
+
+<!-- MATCH ENGINE -->
+<section id="engine">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-tag">核心技术</span>
+      <h2 class="section-title">三层 AI 匹配引擎<br>置信度梯队递进</h2>
+      <p class="section-sub">越高置信度的方法优先执行，未匹配的用户依次流入下一层，最大化匹配率</p>
+    </div>
+    <div class="engine-grid">
+
+      <div class="engine-card tier1 fade-in">
+        <span class="engine-badge eb-purple">Tier 1 · 最高优先级</span>
+        <h3 class="engine-title">直链精准匹配</h3>
+        <p class="engine-sub">
+          从 KS 用户的 bio 或社交字段中解析出 Facebook 直链，提取数字 UID 或用户名。这是最高置信度的匹配方式。
+        </p>
+        <div class="confidence-bar">
+          <div class="confidence-fill cf-purple" style="width:97%"></div>
+        </div>
+        <div class="confidence-label">
+          <span>置信度</span><span class="glow-purple">0.95 – 0.97</span>
+        </div>
+        <ul class="engine-feature-list">
+          <li>解析 social_facebook 字段中的 FB URL</li>
+          <li>区分数字 UID（0.97）和用户名（0.95）</li>
+          <li>跨平台用户名归一化比对（0.75）</li>
+          <li>毫秒级实时执行，零计算成本</li>
+        </ul>
+      </div>
+
+      <div class="engine-card tier2 fade-in">
+        <span class="engine-badge eb-cyan">Tier 2 · ML 相似度</span>
+        <h3 class="engine-title">机器学习向量匹配</h3>
+        <p class="engine-sub">
+          当直链不存在时，构建 8 维行为特征向量，结合余弦相似度与文本 Jaccard 距离，批量识别高度相似的跨平台账号。
+        </p>
+        <div class="confidence-bar">
+          <div class="confidence-fill cf-cyan" style="width:80%"></div>
+        </div>
+        <div class="confidence-label">
+          <span>置信度</span><span class="glow-cyan">0.70 – 0.90</span>
+        </div>
+        <ul class="engine-feature-list">
+          <li>8 维特征向量：投资额/频次/活跃度/社交</li>
+          <li>余弦相似度 × 0.6 + 文本相似度 × 0.4</li>
+          <li>Levenshtein 用户名编辑距离</li>
+          <li>V2 升级：Sentence-BERT + FAISS 向量库</li>
+        </ul>
+      </div>
+
+      <div class="engine-card tier3 fade-in">
+        <span class="engine-badge eb-amber">Tier 3 · 图神经网络</span>
+        <h3 class="engine-title">GCN 社交图谱挖掘</h3>
+        <p class="engine-sub">
+          利用图卷积网络对社交关系图建模，发现两平台账号在社交拓扑结构上的隐式关联，捕捉人类行为无法直接看到的身份信号。
+        </p>
+        <div class="confidence-bar">
+          <div class="confidence-fill cf-amber" style="width:65%"></div>
+        </div>
+        <div class="confidence-label">
+          <span>置信度</span><span style="color:#fcd34d">0.60 – 0.85</span>
+        </div>
+        <ul class="engine-feature-list">
+          <li>torch-geometric 图神经网络框架</li>
+          <li>社交关系拓扑对齐</li>
+          <li>跨平台好友/互动关系建模</li>
+          <li>当前处于 M3 规划阶段（即将上线）</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- STATS -->
+<section id="stats">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-tag">核心数据</span>
+      <h2 class="section-title">重新定义众筹营销的<br>精准上限</h2>
+      <p class="section-sub">每一个数字背后，是技术代差带来的真实竞争优势</p>
+    </div>
+    <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:28px;">
+
+      <!-- Card 1 -->
+      <div class="stat-card fade-in" style="border-color:rgba(124,58,237,0.5);background:linear-gradient(145deg,rgba(124,58,237,0.1),var(--bg3));">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🎯</div>
+          <div style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#a78bfa;">精准匹配度</div>
+        </div>
+        <div class="sc-val" style="font-size:72px;font-weight:900;letter-spacing:-3px;line-height:1;background:linear-gradient(135deg,#7c3aed,#a78bfa,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;" data-count="97" data-suffix="%">0</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px;">跨平台用户对齐置信度</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.65;">直链精准识别达 97%，三层 AI 引擎兜底，每一条受众数据都经过置信度验证，不投不确定的人</div>
+        <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+          <span style="padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(124,58,237,0.15);color:#a78bfa;border:1px solid rgba(124,58,237,0.3);">直链 0.97</span>
+          <span style="padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(6,182,212,0.12);color:#67e8f9;border:1px solid rgba(6,182,212,0.3);">ML 0.90</span>
+          <span style="padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(245,158,11,0.12);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);">GCN 0.85</span>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="stat-card fade-in" style="border-color:rgba(16,185,129,0.5);background:linear-gradient(145deg,rgba(16,185,129,0.1),var(--bg3));">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#10b981,#34d399);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">📈</div>
+          <div style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#34d399;">ROI 倍增效应</div>
+        </div>
+        <div style="font-size:72px;font-weight:900;letter-spacing:-3px;line-height:1;background:linear-gradient(135deg,#10b981,#34d399,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;">3×<span style="font-size:40px;">+</span></div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px;">广告投放 ROI 提升幅度</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.65;">精准受众 vs 传统兴趣标签，单位预算带来的转化提升超过 3 倍——每花 1 块钱，等于竞品花 3 块</div>
+        <div style="margin-top:16px;background:rgba(16,185,129,0.08);border-radius:10px;padding:12px 14px;border:1px solid rgba(16,185,129,0.2);">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">对标：传统兴趣标签投放</div>
+          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;">
+            <div style="width:33%;height:100%;background:#475569;border-radius:100px;"></div>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px;margin-bottom:4px;">CrossAlign 精准对齐投放</div>
+          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden;">
+            <div style="width:95%;height:100%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:100px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="stat-card fade-in" style="border-color:rgba(245,158,11,0.5);background:linear-gradient(145deg,rgba(245,158,11,0.1),var(--bg3));">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#f59e0b,#fbbf24);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🌍</div>
+          <div style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#fcd34d;">市场规模</div>
+        </div>
+        <div style="font-size:52px;font-weight:900;letter-spacing:-2px;line-height:1;background:linear-gradient(135deg,#f59e0b,#fbbf24,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;">$487.5<span style="font-size:28px;">亿</span></div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px;">2035年全球众筹市场规模</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.65;">年均增长 11.2%，中国品牌占据 Kickstarter 金额榜前十中的 8 席——这是属于我们的时代</div>
+        <div style="margin-top:16px;display:flex;gap:12px;">
+          <div style="flex:1;text-align:center;padding:10px;background:rgba(245,158,11,0.08);border-radius:8px;border:1px solid rgba(245,158,11,0.2);">
+            <div style="font-size:20px;font-weight:800;color:#fbbf24;">11.2%</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">年均增长率</div>
+          </div>
+          <div style="flex:1;text-align:center;padding:10px;background:rgba(245,158,11,0.08);border-radius:8px;border:1px solid rgba(245,158,11,0.2);">
+            <div style="font-size:20px;font-weight:800;color:#fbbf24;">8/10</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">中国项目占比</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="stat-card fade-in" style="border-color:rgba(6,182,212,0.5);background:linear-gradient(145deg,rgba(6,182,212,0.1),var(--bg3));">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#0ea5e9,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">⚡</div>
+          <div style="font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#67e8f9;">冷启动优势</div>
+        </div>
+        <div style="font-size:62px;font-weight:900;letter-spacing:-2px;line-height:1;background:linear-gradient(135deg,#0ea5e9,#67e8f9,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;">Day<span style="font-size:72px;"> 1</span></div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px;">第一天即可精准投放</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.65;">无需积累 Pixel 历史数据，项目上线第一天就能命中高意向受众——竞品 Jellop 需要 8 年数据才能做到的事</div>
+        <div style="margin-top:16px;display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(6,182,212,0.08);border-radius:10px;border:1px solid rgba(6,182,212,0.2);">
+          <div style="font-size:22px;">🏆</div>
+          <div style="font-size:12px;color:#67e8f9;line-height:1.5;">跨平台身份对齐技术<br><span style="color:var(--muted);">竞品无法复制的核心护城河</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+
+<!-- VERSUS -->
+<section id="versus">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-tag">竞争分析</span>
+      <h2 class="section-title">CrossAlign vs Jellop<br>技术代差一目了然</h2>
+      <p class="section-sub">Jellop 是目前众筹营销领域最具影响力的服务商——我们正面超越它</p>
+    </div>
+
+    <div style="overflow-x:auto;" class="fade-in">
+      <table class="vs-table">
+        <thead>
+          <tr>
+            <th>对比维度</th>
+            <th class="col-jellop">Jellop（行业第一）</th>
+            <th class="col-cross">✦ CrossAlign</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>冷启动受众定位</td>
+            <td class="col-jellop"><span class="cross">✗</span> 依赖历史 Pixel 数据</td>
+            <td class="col-cross win">✓ 跨平台对齐，零数据即可启动</td>
+          </tr>
+          <tr>
+            <td>受众数据维度</td>
+            <td class="col-jellop">FB 单平台兴趣标签</td>
+            <td class="col-cross win">跨平台行为 + 实际购买意图</td>
+          </tr>
+          <tr>
+            <td>匹配技术</td>
+            <td class="col-jellop">Pixel Lookalike 建模</td>
+            <td class="col-cross win">直链 + ML + GCN 三层引擎</td>
+          </tr>
+          <tr>
+            <td>中国出海品牌专注</td>
+            <td class="col-jellop"><span class="cross">✗</span> 全球通用</td>
+            <td class="col-cross win">✓ 深度定制硬件科技品类</td>
+          </tr>
+          <tr>
+            <td>服务佣金比例</td>
+            <td class="col-jellop">~22.5%</td>
+            <td class="col-cross win">10-15%（行业最低）</td>
+          </tr>
+          <tr>
+            <td>实时 ROI 归因</td>
+            <td class="col-jellop">转化漏斗报告</td>
+            <td class="col-cross win">ROAS / CAC / LTV 实时仪表盘</td>
+          </tr>
+          <tr>
+            <td>API 自动化程度</td>
+            <td class="col-jellop">人工操作为主</td>
+            <td class="col-cross win">全流程自动化 API 管道</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:32px; display:flex; flex-direction:column; gap:12px;" class="fade-in">
+      <div class="highlight-row">
+        <span class="hr-icon">💡</span>
+        <span>Jellop 的护城河是 <strong>8 年历史数据</strong>，CrossAlign 的护城河是 <strong>技术层面的代差</strong>——跨平台对齐是 Jellop 根本没有的能力</span>
+      </div>
+      <div class="highlight-row" style="background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.2);color:#67e8f9;">
+        <span class="hr-icon">📈</span>
+        <span>战略路径：前期用跨平台对齐差异化制胜 → 中期两轨并进积累 Pixel → <strong>长期构建双重护城河，超越 Jellop</strong></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- MARKET -->
+<section id="market">
+  <div class="container">
+    <div class="section-header fade-in">
+      <span class="section-tag">市场机会</span>
+      <h2 class="section-title">万亿赛道<br>中国品牌最大出海机遇</h2>
+    </div>
+    <div class="market-grid">
+      <div class="market-numbers fade-in">
+        <div class="market-item">
+          <div class="market-val">$168.6亿</div>
+          <div class="market-desc">2025 年全球众筹市场规模，年均增长 11.2%</div>
+        </div>
+        <div class="market-item">
+          <div class="market-val">$487.5亿</div>
+          <div class="market-desc">预测 2035 年市场规模，10 年 3 倍增长</div>
+        </div>
+        <div class="market-item">
+          <div class="market-val">前 10 中 8</div>
+          <div class="market-desc">Kickstarter 金额榜前十项目中，来自中国的占据 8 席</div>
+        </div>
+        <div class="market-item">
+          <div class="market-val">20–30%</div>
+          <div class="market-desc">典型众筹项目的营销预算占比，Facebook 广告是最大支出</div>
+        </div>
+      </div>
+
+      <div class="market-visual fade-in">
+        <div class="mv-title">📊 众筹营销关键指标</div>
+        <div class="bar-row">
+          <div class="bar-label-row"><span>Facebook 广告在获客中的占比</span><span>70–80%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:75%; background:linear-gradient(90deg,var(--accent1),var(--accent2))"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label-row"><span>AI 工具整合项目占比</span><span>40%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:40%; background:linear-gradient(90deg,var(--accent2),var(--green))"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label-row"><span>偏好奖励制众筹占比</span><span>45%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:45%; background:linear-gradient(90deg,var(--accent3),#f97316)"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label-row"><span>移动端贡献流量占比</span><span>58%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:58%; background:linear-gradient(90deg,#ec4899,#a78bfa)"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label-row"><span>初创公司众筹使用率</span><span>&gt;60%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:60%; background:linear-gradient(90deg,#10b981,#06b6d4)"></div></div>
+        </div>
+
+        <div style="margin-top:8px; padding:16px; background:rgba(124,58,237,0.1); border-radius:10px; border:1px solid rgba(124,58,237,0.25);">
+          <div style="font-size:13px; color:var(--muted); margin-bottom:4px;">市场复合增长率（CAGR）</div>
+          <div style="font-size:28px; font-weight:800; background:linear-gradient(135deg,var(--accent1),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">11.2% / 年</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CTA -->
+<section id="cta">
+  <div class="container">
+    <div class="fade-in">
+      <h2 class="cta-title">你的下一个众筹项目<br><span style="background:linear-gradient(135deg,var(--accent1),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">值得更精准的受众</span></h2>
+      <p class="cta-sub">让 AI 找到真正愿意为你掏钱的人，而不是广撒网碰运气</p>
+      <div class="hero-btns">
+        <a href="#" class="btn-primary">预约产品演示 →</a>
+        <a href="#pipeline" class="btn-secondary">重新阅读原理</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer>
+  <p>© 2026 <span>CrossAlign</span> — 跨社交媒体用户对齐驱动的众筹营销智能平台</p>
+  <p style="margin-top:8px; font-size:12px; color:#475569;">Kickstarter × Facebook · AI-Powered · 专为中国出海品牌打造</p>
+</footer>
+
+
+<script>
+  // ── 计数动画 ──
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.count);
+    const suffix = el.dataset.suffix || '';
+    let current = 0;
+    const step = Math.ceil(target / 60);
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current + suffix;
+      if (current >= target) clearInterval(timer);
+    }, 16);
+  }
+
+  // ── 滚动触发 ──
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+
+        // 计数器
+        entry.target.querySelectorAll('[data-count]').forEach(animateCounter);
+
+        // .sc-val 计数器
+        if (entry.target.classList.contains('stat-card')) {
+          const v = entry.target.querySelector('.sc-val[data-count]');
+          if (v) animateCounter(v);
+        }
+
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+
+  // hero 计数器立即触发
+  document.querySelectorAll('.hero-stat .stat-val[data-count]').forEach(el => {
+    setTimeout(() => animateCounter(el), 600);
+  });
+
+  // ── 柔滑滚动激活导航 ──
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll', () => {
+    let cur = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) cur = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + cur ? '#e2e8f0' : '';
+    });
+  });
+</script>
+</body>
+</html>
